@@ -16,6 +16,7 @@ import { TextEditorDialog } from './TextEditorDialog'
 import { Toast } from './Toast'
 import type { ToastMessage } from './Toast'
 import { Toolbar } from './Toolbar'
+import { TrashZone } from './TrashZone'
 import { TopBar } from './TopBar'
 
 type Panel = null | { type: 'text'; editingId: string | null } | { type: 'emoji' }
@@ -35,6 +36,9 @@ export function Editor() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [panel, setPanel]           = useState<Panel>(null)
   const [exportFile, setExportFile]     = useState<File | null>(null)
+  const [drag, setDrag] = useState({ dragging: false, over: false })
+  const [deleting, setDeleting] = useState<{ id: string; dx: number; dy: number } | null>(null)
+  const trashRef = useRef<HTMLDivElement>(null)
   const [saving, setSaving]             = useState(false)
   const [toast, setToast]               = useState<ToastMessage | null>(null)
 
@@ -57,6 +61,9 @@ export function Editor() {
 
   const { areaRef, scale } = useStageScale<HTMLDivElement>()
 
+  const historyRef = useRef(history)
+  historyRef.current = history
+
   const gestures = useCanvasGestures({
     elements,
     selectedId,
@@ -65,6 +72,9 @@ export function Editor() {
     onPreview: (next) => dispatch({ type: 'preview', next }),
     onGestureEnd: () => dispatch({ type: 'endGesture' }),
     onDoubleTapText: (id) => setPanel({ type: 'text', editingId: id }),
+    getTrashRect: () => trashRef.current?.getBoundingClientRect() ?? null,
+    onDragChange: setDrag,
+    onDropOnTrash: (id) => handleDropOnTrash(id),
   })
 
   /** Crea un elemento en el centro; desplazado levemente si hay superposición. */
@@ -107,11 +117,20 @@ export function Editor() {
     notify('Sticker agregado · movelo con el dedo', 'success')
   }
 
-  const handleDelete = () => {
-    if (!selectedId) return
-    dispatch({ type: 'commit', next: elements.filter((el) => el.id !== selectedId) })
+  /** Anima el elemento hacia el tachito y después lo elimina. */
+  const handleDropOnTrash = (id: string) => {
+    const el = historyRef.current.present.find((x) => x.id === id)
+    const trash = trashRef.current?.getBoundingClientRect()
+    const frame = gestures.frameRef.current?.getBoundingClientRect()
+    if (!el || !trash || !frame) return
+    const tx = (trash.left + trash.width / 2 - frame.left) / scale
+    const ty = (trash.top + trash.height / 2 - frame.top) / scale
     setSelectedId(null)
-    notify('Eliminado · tocá Deshacer si fue un error', 'info')
+    setDeleting({ id, dx: tx - el.x, dy: ty - el.y })
+    window.setTimeout(() => {
+      dispatch({ type: 'commit', next: historyRef.current.present.filter((x) => x.id !== id) })
+      setDeleting(null)
+    }, 380)
   }
 
   const handleUndo = () => dispatch({ type: 'undo' })
@@ -132,8 +151,6 @@ export function Editor() {
   // Actualizaciones PWA: solo en momentos seguros y sin perder el trabajo.
   const busyRef = useRef(false)
   busyRef.current = panel !== null || exportFile !== null || saving
-  const historyRef = useRef(history)
-  historyRef.current = history
   usePwaUpdate({
     isIdle:   () => !busyRef.current && !gestures.isInteracting(),
     isEmpty:  () => historyRef.current.present.length === 0,
@@ -160,6 +177,7 @@ export function Editor() {
         scale={scale}
         elements={elements}
         selectedId={selectedId}
+        deleting={deleting}
         handlers={gestures.handlers}
       />
 
@@ -180,11 +198,11 @@ export function Editor() {
 
       {/* Barra inferior flotante (z-index 10) — eliminar + guardar */}
       <Toolbar
-        hasSelection={selected !== null}
         saving={saving}
-        onDelete={handleDelete}
         onSave={handleSave}
       />
+
+      <TrashZone trashRef={trashRef} visible={drag.dragging} active={drag.over} />
 
       {/* Avisos */}
       <Toast message={toast} onDone={clearToast} />

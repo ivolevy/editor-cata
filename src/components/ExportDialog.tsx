@@ -70,40 +70,46 @@ function ExportContent({ file, onClose, onResult }: { file: File } & Omit<Export
       />
 
       <p className="export__help">
-        {shareable
-          ? ios
-            ? 'Tocá «Guardar en Fotos o compartir» y después elegí «Guardar imagen» o WhatsApp.'
-            : 'Tocá «Compartir» para enviarla por WhatsApp, o «Descargar» para guardarla en el teléfono.'
-          : 'Tocá «Descargar» para guardar la imagen en tu dispositivo.'}
+        {ios
+          ? 'Tocá «Guardar en galería» y elegí «Guardar imagen». Para WhatsApp, usá «Compartir por WhatsApp».'
+          : 'Tocá «Guardar en galería» para guardarla en el teléfono, o «Compartir por WhatsApp» para enviarla.'}
       </p>
 
       <div className="sheet__actions sheet__actions--stack">
-        {shareable && (
-          <button
-            id="share-button"
-            type="button"
-            className="big-button big-button--primary"
-            disabled={busy}
-            onClick={async () => {
+        <button
+          id="gallery-button"
+          type="button"
+          className="big-button big-button--primary"
+          disabled={busy}
+          onClick={async () => {
+            // iPhone: el menú de compartir es la única vía web para «Guardar imagen» en Fotos.
+            if (ios && shareable) {
               setBusy(true)
               const result = await shareFile(file)
               setBusy(false)
               report(result)
-            }}
-          >
-            <ShareIcon width={22} height={22} />
-            {ios ? 'Guardar en Fotos o compartir' : 'Compartir'}
-          </button>
-        )}
-        <button
-          id="download-button"
-          type="button"
-          className={`big-button ${shareable ? 'big-button--secondary' : 'big-button--primary'}`}
-          disabled={busy}
-          onClick={() => report(downloadFile(file))}
+            } else {
+              report(downloadFile(file))
+            }
+          }}
         >
           <SaveIcon width={22} height={22} />
-          Descargar
+          Guardar en galería
+        </button>
+        <button
+          id="share-button"
+          type="button"
+          className="big-button big-button--secondary"
+          disabled={busy || !shareable}
+          onClick={async () => {
+            setBusy(true)
+            const result = await shareFile(file)
+            setBusy(false)
+            report(result)
+          }}
+        >
+          <ShareIcon width={22} height={22} />
+          Compartir por WhatsApp
         </button>
         <button id="export-close" type="button" className="big-button big-button--ghost" onClick={onClose}>
           Volver a la imagen

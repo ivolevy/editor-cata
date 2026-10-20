@@ -1,4 +1,5 @@
-import { EMOJIS } from '../constants'
+import { useState } from 'react'
+import { EMOJI_CATEGORIES } from '../emojiData'
 import { CloseIcon } from './icons'
 import { Sheet } from './Sheet'
 
@@ -8,8 +9,11 @@ interface EmojiPickerProps {
   onPick:  (emoji: string) => void
 }
 
-/** Selector de stickers: bottom sheet oscuro, grid desplazable. */
+/** Selector de stickers con todos los emojis del iPhone, organizados por categoría. */
 export function EmojiPicker({ open, onClose, onPick }: EmojiPickerProps) {
+  const [cat, setCat] = useState(0)
+  const category = EMOJI_CATEGORIES[cat]
+
   return (
     <Sheet open={open} onClose={onClose} placement="bottom" labelledBy="emoji-title">
       <div className="sheet__header">
@@ -28,11 +32,26 @@ export function EmojiPicker({ open, onClose, onPick }: EmojiPickerProps) {
         </button>
       </div>
 
-      <div className="emoji-grid" role="list">
-        {EMOJIS.map((emoji, i) => (
+      <div className="emoji-tabs" role="tablist" aria-label="Categorías">
+        {EMOJI_CATEGORIES.map((c, i) => (
+          <button
+            key={c.name}
+            type="button"
+            role="tab"
+            aria-selected={i === cat}
+            aria-label={c.name}
+            className={`emoji-tabs__tab${i === cat ? ' is-active' : ''}`}
+            onClick={() => setCat(i)}
+          >
+            {c.icon}
+          </button>
+        ))}
+      </div>
+
+      <div className="emoji-grid" role="list" key={category.name}>
+        {category.emojis.map((emoji) => (
           <button
             key={emoji}
-            id={`emoji-option-${i}`}
             type="button"
             role="listitem"
             className="emoji-grid__item"

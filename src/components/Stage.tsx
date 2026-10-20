@@ -9,6 +9,7 @@ interface StageProps {
   scale:      number
   elements:   CanvasElement[]
   selectedId: string | null
+  deleting?: { id: string; dx: number; dy: number } | null
   handlers: {
     onPointerDown:   PointerEventHandler<HTMLDivElement>
     onPointerMove:   PointerEventHandler<HTMLDivElement>
@@ -22,7 +23,7 @@ interface StageProps {
  * El fondo oscuro (gradiente) viene del CSS de .stage-frame.
  * Los elementos se posicionan en coordenadas reales del lienzo.
  */
-export function Stage({ areaRef, frameRef, scale, elements, selectedId, handlers }: StageProps) {
+export function Stage({ areaRef, frameRef, scale, elements, selectedId, deleting, handlers }: StageProps) {
   const frameStyle = {
     width:  CANVAS_WIDTH  * scale,
     height: CANVAS_HEIGHT * scale,
@@ -45,18 +46,13 @@ export function Stage({ areaRef, frameRef, scale, elements, selectedId, handlers
           style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT, transform: `scale(${scale})` }}
         >
           {elements.map((el) => (
-            <ElementView key={el.id} element={el} selected={el.id === selectedId} />
+            <ElementView
+              key={el.id}
+              element={el}
+              selected={el.id === selectedId}
+              deleting={deleting?.id === el.id ? deleting : null}
+            />
           ))}
-
-          {elements.length === 0 && (
-            <div className="stage__empty">
-              <span className="stage__empty-icon">✨</span>
-              <p className="stage__empty-text">
-                Tocá <strong>Aa</strong> o <strong>😊</strong><br />
-                para empezar
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>

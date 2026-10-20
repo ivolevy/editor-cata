@@ -17,6 +17,11 @@ interface Options {
   onPreview: (next: CanvasElement[]) => void
   onGestureEnd: () => void
   onDoubleTapText: (id: string) => void
+  /** Rectángulo en pantalla del tachito (o null si no existe). */
+  getTrashRect: () => DOMRect | null
+  onDragChange: (state: { dragging: boolean; over: boolean }) => void
+  /** Se soltó el elemento sobre el tachito. */
+  onDropOnTrash: (id: string) => void
 }
 
 interface Session {
@@ -47,6 +52,21 @@ export function useCanvasGestures(opts: Options) {
   const session = useRef<Session | null>(null)
   const lastTap = useRef<{ id: string; time: number } | null>(null)
   const rafId = useRef<number | null>(null)
+  const dragState = useRef({ dragging: false, over: false })
+
+  const setDrag = useCallback((dragging: boolean, over: boolean) => {
+    const d = dragState.current
+    if (d.dragging === dragging && d.over === over) return
+    dragState.current = { dragging, over }
+    optsRef.current.onDragChange({ dragging, over })
+  }, [])
+
+  const isOverTrash = (x: number, y: number) => {
+    const r = optsRef.current.getTrashRect()
+    if (!r) return false
+    const pad = 24
+    return x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad
+  }
 
   const toCanvas = useCallback((clientX: number, clientY: number): Point => {
     const rect = frameRef.current!.getBoundingClientRect()
@@ -135,9 +155,12 @@ export function useCanvasGestures(opts: Options) {
         if (distance(s.tapScreen, { x: e.clientX, y: e.clientY }) < TAP_SLOP_PX) return
         s.moved = true
       }
+      if (s.targetId && pointers.current.size === 1) {
+        setDrag(true, isOverTrash(e.clientX, e.clientY))
+      }
       if (rafId.current === null) rafId.current = requestAnimationFrame(applyFrame)
     },
-    [applyFrame, toCanvas],
+    [applyFrame, toCanvas, setDrag],
   )
 
   const endPointer = useCallback(
@@ -152,6 +175,12 @@ export function useCanvasGestures(opts: Options) {
         rebase() // queda un dedo: sigue moviendo sin saltos
         return
       }
+
+      const dropId =
+        e.type !== 'pointercancel' && s.moved && s.targetId && dragState.current.over
+          ? s.targetId
+          : null
+      setDrag(false, false)
 
       const cancelled = e.type === 'pointercancel'
       if (!s.moved && !cancelled) {
@@ -172,8 +201,9 @@ export function useCanvasGestures(opts: Options) {
       }
       session.current = null
       optsRef.current.onGestureEnd()
+      if (dropId) optsRef.current.onDropOnTrash(dropId)
     },
-    [flush, rebase],
+    [flush, rebase, setDrag],
   )
 
   useEffect(
