@@ -6,7 +6,6 @@ import type { Point, TransformStart } from '../lib/geometry'
 
 /** Distancia mínima (en píxeles de pantalla) para considerar que el dedo se movió y no fue un toque. */
 const TAP_SLOP_PX = 6
-const DOUBLE_TAP_MS = 350
 
 interface Options {
   elements: CanvasElement[]
@@ -50,7 +49,6 @@ export function useCanvasGestures(opts: Options) {
   const frameRef = useRef<HTMLDivElement>(null)
   const pointers = useRef(new Map<number, Point>())
   const session = useRef<Session | null>(null)
-  const lastTap = useRef<{ id: string; time: number } | null>(null)
   const rafId = useRef<number | null>(null)
   const dragState = useRef({ dragging: false, over: false })
 
@@ -188,15 +186,8 @@ export function useCanvasGestures(opts: Options) {
         if (!s.tapId) {
           o.onSelect(null)
         } else {
-          const now = performance.now()
-          const prev = lastTap.current
           const el = o.elements.find((x) => x.id === s.tapId)
-          if (prev && prev.id === s.tapId && now - prev.time < DOUBLE_TAP_MS && el?.kind === 'text') {
-            lastTap.current = null
-            o.onDoubleTapText(s.tapId)
-          } else {
-            lastTap.current = { id: s.tapId, time: now }
-          }
+          if (el?.kind === 'text') o.onDoubleTapText(s.tapId)
         }
       }
       session.current = null

@@ -193,7 +193,6 @@ export function Editor() {
       <ContextBar
         selected={selected}
         hasElements={elements.length > 0}
-        onEditText={() => selected && setPanel({ type: 'text', editingId: selected.id })}
       />
 
       {/* Barra inferior flotante (z-index 10) — eliminar + guardar */}
