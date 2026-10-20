@@ -2,8 +2,8 @@
 export const CANVAS_WIDTH = 1080
 export const CANVAS_HEIGHT = 1920
 
-/** Color de fondo del lienzo — oscuro como IG Stories. */
-export const CANVAS_BACKGROUND = '#1a1a2e'
+/** Color de fondo del lienzo — blanco. */
+export const CANVAS_BACKGROUND = '#ffffff'
 
 /** Tamaño base de la letra en píxeles del lienzo. */
 export const TEXT_BASE_SIZE = 96
@@ -28,8 +28,8 @@ export const EMOJI_FONT_FAMILY =
  * El primero (blanco) es el predeterminado.
  */
 export const TEXT_COLORS: { name: string; value: string }[] = [
-  { name: 'Blanco',   value: '#FFFFFF' },
   { name: 'Negro',    value: '#1C1C1E' },
+  { name: 'Blanco',   value: '#FFFFFF' },
   { name: 'Rosa',     value: '#FF69A0' },
   { name: 'Rojo',     value: '#FF375F' },
   { name: 'Naranja',  value: '#FF9500' },

@@ -27,9 +27,9 @@
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  color: var(--white);
-  background: var(--black);
-  color-scheme: dark;
+  color: #111;
+  background: #fff;
+  color-scheme: light;
 }
 
 *,
@@ -42,7 +42,7 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  background: var(--black);
+  background: #fff;
 }
 
 #root { height: 100%; }
@@ -72,7 +72,7 @@ button:disabled { cursor: default; }
   width: 100vw;
   height: 100vh;
   height: 100dvh;
-  background: var(--black);
+  background: #fff;
   overflow: hidden;
   touch-action: manipulation;
   -webkit-user-select: none;
@@ -96,7 +96,7 @@ button:disabled { cursor: default; }
   overflow: hidden;
   border-radius: 14px;
   /* Deep IG-style dark gradient — the canvas background colour */
-  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 48%, #0f3460 100%);
+  background: #ffffff;
   touch-action: none;
   -webkit-touch-callout: none;
 }
@@ -135,13 +135,13 @@ button:disabled { cursor: default; }
   margin: 0;
   font-size: calc(17px * var(--inv));
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(0, 0, 0, 0.4);
   font-weight: 500;
   letter-spacing: 0.01em;
 }
 
 .stage__empty-text strong {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(0, 0, 0, 0.7);
   font-weight: 800;
 }
 
@@ -160,7 +160,7 @@ button:disabled { cursor: default; }
 }
 
 .canvas-el.is-selected {
-  outline-color: rgba(255, 255, 255, 0.85);
+  outline-color: rgba(0, 0, 0, 0.55);
   cursor: grabbing;
 }
 
@@ -177,11 +177,7 @@ button:disabled { cursor: default; }
   justify-content: space-between;
   padding: calc(14px + var(--safe-top)) 16px 16px;
   /* Gradient keeps icons readable over any canvas colour */
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.52) 0%,
-    rgba(0, 0, 0, 0.0)  100%
-  );
+  background: none;
   pointer-events: none;   /* pass-through to canvas */
 }
 
@@ -234,9 +230,9 @@ button:disabled { cursor: default; }
   height: 36px;
   padding: 0 16px;
   border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.88);
+  border: 2px solid #111;
   background: transparent;
-  color: white;
+  color: #111;
   font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.4px;
@@ -247,7 +243,7 @@ button:disabled { cursor: default; }
 
 .ig-aa-btn:active {
   transform: scale(0.9);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 /* ── Sticker / emoji circle button ─────────────────────────────────────── */
@@ -256,9 +252,9 @@ button:disabled { cursor: default; }
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.75);
+  border: 2px solid #111;
   background: transparent;
-  color: white;
+  color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -281,11 +277,7 @@ button:disabled { cursor: default; }
   align-items: center;
   justify-content: space-between;
   padding: 40px 22px calc(22px + var(--safe-bottom));
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.72) 0%,
-    rgba(0, 0, 0, 0.0)  100%
-  );
+  background: none;
   pointer-events: none;
 }
 
@@ -335,7 +327,9 @@ button:disabled { cursor: default; }
   align-items: center;
   gap: 8px;
   transition: transform 0.15s var(--spring), opacity 0.2s;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  background: #000;
+  color: #fff;
 }
 
 .ig-save-btn:active:not(:disabled) { transform: scale(0.93); }
@@ -460,9 +454,7 @@ button:disabled { cursor: default; }
   z-index: 50;
   display: flex;
   flex-direction: column;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.97);
   animation: fade-in 0.18s var(--ease) both;
 }
 
@@ -476,7 +468,7 @@ button:disabled { cursor: default; }
 .text-editor-cancel {
   font-size: 16px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.65);
   padding: 8px 4px;
   min-width: 70px;
   text-align: left;
@@ -488,7 +480,7 @@ button:disabled { cursor: default; }
 .text-editor-done {
   font-size: 16px;
   font-weight: 800;
-  color: white;
+  color: #000;
   padding: 8px 4px;
   min-width: 70px;
   text-align: right;
@@ -524,9 +516,8 @@ button:disabled { cursor: default; }
 }
 
 .color-dot.is-selected {
-  border-color: white;
+  border-color: #111;
   transform: scale(1.22);
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
 }
 
 .color-dot:active { transform: scale(0.88); }
@@ -558,17 +549,19 @@ button:disabled { cursor: default; }
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
-  caret-color: white;
+  caret-color: #111;
   min-height: 80px;
   max-height: 50dvh;
   overflow-y: auto;
   letter-spacing: -0.02em;
-  /* Shadow makes text readable over any colour */
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  text-shadow: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .text-editor__input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(0, 0, 0, 0.3);
   font-weight: 500;
 }
 
