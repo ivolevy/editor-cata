@@ -36,7 +36,6 @@ export function Editor() {
   const [panel, setPanel]           = useState<Panel>(null)
   const [exportFile, setExportFile]     = useState<File | null>(null)
   const [drag, setDrag] = useState({ dragging: false, over: false })
-  const [deleting, setDeleting] = useState<{ id: string; dx: number; dy: number } | null>(null)
   const trashRef = useRef<HTMLDivElement>(null)
   const [saving, setSaving]             = useState(false)
   const [toast, setToast]               = useState<ToastMessage | null>(null)
@@ -109,20 +108,10 @@ export function Editor() {
     setPanel(null)
   }
 
-  /** Anima el elemento hacia el tachito y después lo elimina. */
+  /** Elimina al instante el elemento soltado sobre el tachito. */
   const handleDropOnTrash = (id: string) => {
-    const el = historyRef.current.present.find((x) => x.id === id)
-    const trash = trashRef.current?.getBoundingClientRect()
-    const frame = gestures.frameRef.current?.getBoundingClientRect()
-    if (!el || !trash || !frame) return
-    const tx = (trash.left + trash.width / 2 - frame.left) / scale
-    const ty = (trash.top + trash.height / 2 - frame.top) / scale
     setSelectedId(null)
-    setDeleting({ id, dx: tx - el.x, dy: ty - el.y })
-    window.setTimeout(() => {
-      dispatch({ type: 'commit', next: historyRef.current.present.filter((x) => x.id !== id) })
-      setDeleting(null)
-    }, 300)
+    dispatch({ type: 'commit', next: historyRef.current.present.filter((x) => x.id !== id) })
   }
 
   const handleUndo = () => dispatch({ type: 'undo' })
@@ -169,7 +158,6 @@ export function Editor() {
         scale={scale}
         elements={elements}
         selectedId={selectedId}
-        deleting={deleting}
         handlers={gestures.handlers}
       />
 
