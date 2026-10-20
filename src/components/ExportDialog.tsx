@@ -34,16 +34,8 @@ function ExportContent({ file, onClose, onResult }: { file: File } & Omit<Export
   const report = (result: DeliveryResult) => {
     switch (result) {
       case 'shared':
-        onResult('¡Listo! La imagen se guardó o se compartió.', 'success')
-        onClose()
-        break
       case 'downloaded':
-        onResult(
-          ios
-            ? 'Se inició la descarga. Si aparece un aviso, tocá «Descargar». La imagen queda en la app Archivos.'
-            : 'Se inició la descarga. La imagen queda en la carpeta «Descargas».',
-          'info',
-        )
+        onResult('Imagen guardada', 'success')
         onClose()
         break
       case 'cancelled':
@@ -72,7 +64,17 @@ function ExportContent({ file, onClose, onResult }: { file: File } & Omit<Export
           type="button"
           className="big-button big-button--primary"
           disabled={busy}
-          onClick={() => report(downloadFile(file))}
+          onClick={async () => {
+            // En iPhone la única forma de llegar a Fotos es el menú nativo («Guardar imagen»).
+            if (ios && shareable) {
+              setBusy(true)
+              const result = await shareFile(file)
+              setBusy(false)
+              report(result)
+            } else {
+              report(downloadFile(file))
+            }
+          }}
         >
           <SaveIcon width={22} height={22} />
           Guardar en galería
