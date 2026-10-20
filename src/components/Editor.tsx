@@ -11,16 +11,14 @@ import type { CanvasElement, ElementKind } from '../types'
 import { ContextBar } from './ContextBar'
 import { EmojiPicker } from './EmojiPicker'
 import { ExportDialog } from './ExportDialog'
-import { InstallHelpDialog } from './InstallHelpDialog'
 import { Stage } from './Stage'
 import { TextEditorDialog } from './TextEditorDialog'
 import { Toast } from './Toast'
 import type { ToastMessage } from './Toast'
 import { Toolbar } from './Toolbar'
 import { TopBar } from './TopBar'
-import { Tutorial } from './Tutorial'
 
-type Panel = null | { type: 'text'; editingId: string | null } | { type: 'emoji' } | { type: 'install' }
+type Panel = null | { type: 'text'; editingId: string | null } | { type: 'emoji' }
 
 let idCounter = 0
 const newId = () => `el-${Date.now().toString(36)}-${(idCounter++).toString(36)}`
@@ -36,7 +34,6 @@ export function Editor() {
   const elements = history.present
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [panel, setPanel]           = useState<Panel>(null)
-  const [tutorialOpen, setTutorialOpen] = useState(false)
   const [exportFile, setExportFile]     = useState<File | null>(null)
   const [saving, setSaving]             = useState(false)
   const [toast, setToast]               = useState<ToastMessage | null>(null)
@@ -134,7 +131,7 @@ export function Editor() {
 
   // Actualizaciones PWA: solo en momentos seguros y sin perder el trabajo.
   const busyRef = useRef(false)
-  busyRef.current = panel !== null || tutorialOpen || exportFile !== null || saving
+  busyRef.current = panel !== null || exportFile !== null || saving
   const historyRef = useRef(history)
   historyRef.current = history
   usePwaUpdate({
@@ -170,7 +167,6 @@ export function Editor() {
       <TopBar
         canUndo={history.past.length > 0}
         onUndo={handleUndo}
-        onHelp={() => setTutorialOpen(true)}
         onText={() => setPanel({ type: 'text', editingId: null })}
         onEmoji={() => setPanel({ type: 'emoji' })}
       />
@@ -215,21 +211,7 @@ export function Editor() {
         onResult={notify}
       />
 
-      <InstallHelpDialog
-        open={panel?.type === 'install'}
-        onClose={() => setPanel(null)}
-      />
 
-      {tutorialOpen && (
-        <Tutorial
-          open
-          onClose={() => setTutorialOpen(false)}
-          onShowInstall={() => {
-            setTutorialOpen(false)
-            setPanel({ type: 'install' })
-          }}
-        />
-      )}
     </div>
   )
 }

@@ -35,7 +35,6 @@ export function Toolbar({ hasSelection, saving, onDelete, onSave }: ToolbarProps
       <div className="toolbar__right">
         <button
           id="save-button"
-          data-tour="save"
           type="button"
           className="ig-save-btn"
           onClick={onSave}

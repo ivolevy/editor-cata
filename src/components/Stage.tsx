@@ -34,7 +34,6 @@ export function Stage({ areaRef, frameRef, scale, elements, selectedId, handlers
       <div
         ref={frameRef}
         id="canvas"
-        data-tour="canvas"
         className="stage-frame"
         style={frameStyle}
         aria-label="Lienzo"

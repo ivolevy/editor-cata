@@ -1,9 +1,8 @@
-import { DotsIcon, UndoIcon } from './icons'
+import { UndoIcon } from './icons'
 
 interface TopBarProps {
   canUndo: boolean
   onUndo:  () => void
-  onHelp:  () => void
   onText:  () => void
   onEmoji: () => void
 }
@@ -11,9 +10,9 @@ interface TopBarProps {
 /**
  * Barra superior en estilo IG Stories: flota sobre el lienzo con un
  * gradiente descendente.
- * Izquierda → Deshacer   Centro → Aa + 😊   Derecha → ⋯ (ayuda)
+ * Izquierda → Deshacer   Centro → Aa + 😊   Derecha → vacío
  */
-export function TopBar({ canUndo, onUndo, onHelp, onText, onEmoji }: TopBarProps) {
+export function TopBar({ canUndo, onUndo, onText, onEmoji }: TopBarProps) {
   return (
     <header className="topbar">
 
@@ -21,7 +20,6 @@ export function TopBar({ canUndo, onUndo, onHelp, onText, onEmoji }: TopBarProps
       <div className="topbar__left">
         <button
           id="undo-button"
-          data-tour="undo"
           type="button"
           className="ig-circle-btn"
           onClick={onUndo}
@@ -36,7 +34,6 @@ export function TopBar({ canUndo, onUndo, onHelp, onText, onEmoji }: TopBarProps
       <div className="topbar__center">
         <button
           id="text-button"
-          data-tour="text"
           type="button"
           className="ig-aa-btn"
           onClick={onText}
@@ -47,7 +44,6 @@ export function TopBar({ canUndo, onUndo, onHelp, onText, onEmoji }: TopBarProps
 
         <button
           id="emoji-button"
-          data-tour="emoji"
           type="button"
           className="ig-sticker-btn"
           onClick={onEmoji}
@@ -58,18 +54,8 @@ export function TopBar({ canUndo, onUndo, onHelp, onText, onEmoji }: TopBarProps
         </button>
       </div>
 
-      {/* Derecha: más opciones / ayuda */}
-      <div className="topbar__right">
-        <button
-          id="help-button"
-          type="button"
-          className="ig-circle-btn"
-          onClick={onHelp}
-          aria-label="Ayuda"
-        >
-          <DotsIcon width={20} height={20} />
-        </button>
-      </div>
+      {/* Derecha: espacio para centrar las herramientas */}
+      <div className="topbar__right" style={{ width: 40 }} />
 
     </header>
   )
