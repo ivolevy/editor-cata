@@ -4,39 +4,40 @@ import type { CanvasElement } from '../types'
 import { ElementView } from './ElementView'
 
 interface StageProps {
-  areaRef: RefObject<HTMLDivElement | null>
-  frameRef: RefObject<HTMLDivElement | null>
-  scale: number
-  elements: CanvasElement[]
+  areaRef:    RefObject<HTMLDivElement | null>
+  frameRef:   RefObject<HTMLDivElement | null>
+  scale:      number
+  elements:   CanvasElement[]
   selectedId: string | null
   handlers: {
-    onPointerDown: PointerEventHandler<HTMLDivElement>
-    onPointerMove: PointerEventHandler<HTMLDivElement>
-    onPointerUp: PointerEventHandler<HTMLDivElement>
+    onPointerDown:   PointerEventHandler<HTMLDivElement>
+    onPointerMove:   PointerEventHandler<HTMLDivElement>
+    onPointerUp:     PointerEventHandler<HTMLDivElement>
     onPointerCancel: PointerEventHandler<HTMLDivElement>
   }
 }
 
 /**
- * Lienzo blanco de 1080 × 1920 achicado para entrar en pantalla sin deformarse.
- * Los elementos se ubican en coordenadas reales del lienzo; solo cambia la escala visual.
+ * Lienzo 1080 × 1920 escalado a pantalla.
+ * El fondo oscuro (gradiente) viene del CSS de .stage-frame.
+ * Los elementos se posicionan en coordenadas reales del lienzo.
  */
 export function Stage({ areaRef, frameRef, scale, elements, selectedId, handlers }: StageProps) {
   const frameStyle = {
-    width: CANVAS_WIDTH * scale,
+    width:  CANVAS_WIDTH  * scale,
     height: CANVAS_HEIGHT * scale,
     '--inv': 1 / scale,
   } as CSSProperties
 
   return (
-    <main className="stage-area" ref={areaRef}>
+    <div className="stage-area" ref={areaRef}>
       <div
         ref={frameRef}
         id="canvas"
         data-tour="canvas"
         className="stage-frame"
         style={frameStyle}
-        aria-label="Lienzo de la imagen"
+        aria-label="Lienzo"
         role="region"
         {...handlers}
       >
@@ -47,15 +48,18 @@ export function Stage({ areaRef, frameRef, scale, elements, selectedId, handlers
           {elements.map((el) => (
             <ElementView key={el.id} element={el} selected={el.id === selectedId} />
           ))}
+
           {elements.length === 0 && (
-            <p className="stage__empty">
-              Tocá <strong>Texto</strong> o <strong>Emoji</strong>
-              <br />
-              para empezar
-            </p>
+            <div className="stage__empty">
+              <span className="stage__empty-icon">✨</span>
+              <p className="stage__empty-text">
+                Tocá <strong>Aa</strong> o <strong>😊</strong><br />
+                para empezar
+              </p>
+            </div>
           )}
         </div>
       </div>
-    </main>
+    </div>
   )
 }

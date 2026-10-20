@@ -2,38 +2,48 @@ import type { CanvasElement } from '../types'
 import { PencilIcon } from './icons'
 
 interface ContextBarProps {
-  selected: CanvasElement | null
+  selected:    CanvasElement | null
   hasElements: boolean
-  onEditText: () => void
+  onEditText:  () => void
 }
 
 /**
- * Franja de ayuda contextual entre el lienzo y las herramientas.
- * Tiene altura fija para que el lienzo no cambie de tamaño al elegir elementos.
+ * Franja contextual flotante (position: absolute en el CSS).
+ * Tiene altura fija para que el lienzo no cambie al elegir elementos.
  */
 export function ContextBar({ selected, hasElements, onEditText }: ContextBarProps) {
-  let content
   if (selected?.kind === 'text') {
-    content = (
-      <>
-        <span className="context-bar__status">Texto elegido</span>
-        <button id="edit-text-button" type="button" className="pill-button" onClick={onEditText}>
-          <PencilIcon width={20} height={20} />
-          <span>Editar texto</span>
+    return (
+      <div className="context-bar" aria-live="polite">
+        <span className="context-bar__status">Texto</span>
+        <button
+          id="edit-text-button"
+          type="button"
+          className="ig-edit-text-btn"
+          onClick={onEditText}
+        >
+          <PencilIcon width={14} height={14} />
+          Editar
         </button>
-      </>
+      </div>
     )
-  } else if (selected?.kind === 'emoji') {
-    content = <span className="context-bar__hint">Emoji elegido · Usá dos dedos para agrandarlo o girarlo</span>
-  } else if (hasElements) {
-    content = <span className="context-bar__hint">Tocá un texto o emoji para elegirlo</span>
-  } else {
-    content = null
   }
 
-  return (
-    <div className="context-bar" aria-live="polite">
-      {content}
-    </div>
-  )
+  if (selected?.kind === 'emoji') {
+    return (
+      <div className="context-bar" aria-live="polite">
+        <span className="context-bar__hint">Dos dedos para girar o agrandar</span>
+      </div>
+    )
+  }
+
+  if (hasElements) {
+    return (
+      <div className="context-bar" aria-live="polite">
+        <span className="context-bar__hint">Tocá para seleccionar</span>
+      </div>
+    )
+  }
+
+  return <div className="context-bar" aria-live="polite" />
 }

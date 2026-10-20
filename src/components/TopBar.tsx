@@ -1,32 +1,76 @@
-import { HelpIcon, UndoIcon } from './icons'
+import { DotsIcon, UndoIcon } from './icons'
 
 interface TopBarProps {
   canUndo: boolean
-  onUndo: () => void
-  onHelp: () => void
+  onUndo:  () => void
+  onHelp:  () => void
+  onText:  () => void
+  onEmoji: () => void
 }
 
-export function TopBar({ canUndo, onUndo, onHelp }: TopBarProps) {
+/**
+ * Barra superior en estilo IG Stories: flota sobre el lienzo con un
+ * gradiente descendente.
+ * Izquierda → Deshacer   Centro → Aa + 😊   Derecha → ⋯ (ayuda)
+ */
+export function TopBar({ canUndo, onUndo, onHelp, onText, onEmoji }: TopBarProps) {
   return (
     <header className="topbar">
-      <button
-        id="undo-button"
-        data-tour="undo"
-        type="button"
-        className="chip-button"
-        onClick={onUndo}
-        disabled={!canUndo}
-      >
-        <UndoIcon width={22} height={22} />
-        <span>Deshacer</span>
-      </button>
 
-      <h1 className="topbar__title">Mi imagen</h1>
+      {/* Izquierda: deshacer */}
+      <div className="topbar__left">
+        <button
+          id="undo-button"
+          data-tour="undo"
+          type="button"
+          className="ig-circle-btn"
+          onClick={onUndo}
+          disabled={!canUndo}
+          aria-label="Deshacer"
+        >
+          <UndoIcon width={19} height={19} />
+        </button>
+      </div>
 
-      <button id="help-button" type="button" className="chip-button chip-button--help" onClick={onHelp}>
-        <HelpIcon width={22} height={22} />
-        <span>¿Cómo se usa?</span>
-      </button>
+      {/* Centro: herramientas de texto y stickers */}
+      <div className="topbar__center">
+        <button
+          id="text-button"
+          data-tour="text"
+          type="button"
+          className="ig-aa-btn"
+          onClick={onText}
+          aria-label="Agregar texto"
+        >
+          Aa
+        </button>
+
+        <button
+          id="emoji-button"
+          data-tour="emoji"
+          type="button"
+          className="ig-sticker-btn"
+          onClick={onEmoji}
+          aria-label="Agregar sticker"
+        >
+          {/* Cara con guiño estilo sticker */}
+          😊
+        </button>
+      </div>
+
+      {/* Derecha: más opciones / ayuda */}
+      <div className="topbar__right">
+        <button
+          id="help-button"
+          type="button"
+          className="ig-circle-btn"
+          onClick={onHelp}
+          aria-label="Ayuda"
+        >
+          <DotsIcon width={20} height={20} />
+        </button>
+      </div>
+
     </header>
   )
 }

@@ -30,27 +30,32 @@ const loadInitialHistory = (): HistoryState => {
   return saved ? { past: saved.past, present: saved.present, gestureStart: null } : initialHistory()
 }
 
-/** Pantalla única de la aplicación: lienzo, herramientas y todos los paneles superpuestos. */
+/** Pantalla única: lienzo oscuro a pantalla completa con UI flotante, estilo IG Stories. */
 export function Editor() {
   const [history, dispatch] = useReducer(historyReducer, undefined, loadInitialHistory)
   const elements = history.present
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [panel, setPanel] = useState<Panel>(null)
+  const [panel, setPanel]           = useState<Panel>(null)
   const [tutorialOpen, setTutorialOpen] = useState(false)
-  const [exportFile, setExportFile] = useState<File | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [toast, setToast] = useState<ToastMessage | null>(null)
+  const [exportFile, setExportFile]     = useState<File | null>(null)
+  const [saving, setSaving]             = useState(false)
+  const [toast, setToast]               = useState<ToastMessage | null>(null)
 
-  const selected = useMemo(() => elements.find((el) => el.id === selectedId) ?? null, [elements, selectedId])
+  const selected = useMemo(
+    () => elements.find((el) => el.id === selectedId) ?? null,
+    [elements, selectedId],
+  )
 
-  // Si el elemento elegido desaparece (por ejemplo, al deshacer), se quita la selección.
+  // Si el elemento elegido desaparece (por ejemplo, al deshacer), quita la selección.
   useEffect(() => {
     if (selectedId && !elements.some((el) => el.id === selectedId)) setSelectedId(null)
   }, [elements, selectedId])
 
-  const notify = useCallback((text: string, tone: ToastMessage['tone'] = 'info') => {
-    setToast({ id: Date.now(), text, tone })
-  }, [])
+  const notify = useCallback(
+    (text: string, tone: ToastMessage['tone'] = 'info') =>
+      setToast({ id: Date.now(), text, tone }),
+    [],
+  )
   const clearToast = useCallback(() => setToast(null), [])
 
   const { areaRef, scale } = useStageScale<HTMLDivElement>()
@@ -65,7 +70,7 @@ export function Editor() {
     onDoubleTapText: (id) => setPanel({ type: 'text', editingId: id }),
   })
 
-  /** Crea un elemento en el centro; si ya hay uno ahí, lo corre un poco para que no se tapen. */
+  /** Crea un elemento en el centro; desplazado levemente si hay superposición. */
   const addElement = (kind: ElementKind, content: string, color: string) => {
     let x = CANVAS_WIDTH / 2
     let y = CANVAS_HEIGHT / 2
@@ -79,18 +84,22 @@ export function Editor() {
   }
 
   const editingElement =
-    panel?.type === 'text' && panel.editingId ? elements.find((el) => el.id === panel.editingId) ?? null : null
+    panel?.type === 'text' && panel.editingId
+      ? elements.find((el) => el.id === panel.editingId) ?? null
+      : null
 
   const handleTextConfirm = (text: string, color: string) => {
     if (editingElement) {
       dispatch({
         type: 'commit',
-        next: elements.map((el) => (el.id === editingElement.id ? { ...el, content: text, color } : el)),
+        next: elements.map((el) =>
+          el.id === editingElement.id ? { ...el, content: text, color } : el,
+        ),
       })
       setSelectedId(editingElement.id)
     } else {
       addElement('text', text, color)
-      notify('Texto agregado. Podés moverlo con el dedo.', 'success')
+      notify('Texto agregado · movelo con el dedo', 'success')
     }
     setPanel(null)
   }
@@ -98,19 +107,17 @@ export function Editor() {
   const handleEmojiPick = (emoji: string) => {
     addElement('emoji', emoji, DEFAULT_TEXT_COLOR)
     setPanel(null)
-    notify('Emoji agregado. Podés moverlo con el dedo.', 'success')
+    notify('Sticker agregado · movelo con el dedo', 'success')
   }
 
   const handleDelete = () => {
     if (!selectedId) return
     dispatch({ type: 'commit', next: elements.filter((el) => el.id !== selectedId) })
     setSelectedId(null)
-    notify('Se eliminó. Si fue un error, tocá «Deshacer».', 'info')
+    notify('Eliminado · tocá Deshacer si fue un error', 'info')
   }
 
-  const handleUndo = () => {
-    dispatch({ type: 'undo' })
-  }
+  const handleUndo = () => dispatch({ type: 'undo' })
 
   const handleSave = async () => {
     setSelectedId(null)
@@ -125,14 +132,14 @@ export function Editor() {
     }
   }
 
-  // Actualizaciones de la app: solo en momentos seguros y sin perder el trabajo.
+  // Actualizaciones PWA: solo en momentos seguros y sin perder el trabajo.
   const busyRef = useRef(false)
   busyRef.current = panel !== null || tutorialOpen || exportFile !== null || saving
   const historyRef = useRef(history)
   historyRef.current = history
   usePwaUpdate({
-    isIdle: () => !busyRef.current && !gestures.isInteracting(),
-    isEmpty: () => historyRef.current.present.length === 0,
+    isIdle:   () => !busyRef.current && !gestures.isInteracting(),
+    isEmpty:  () => historyRef.current.present.length === 0,
     saveWork: () => {
       const { present, past } = historyRef.current
       if (present.length > 0 || past.length > 0) saveForReload({ present, past })
@@ -148,8 +155,8 @@ export function Editor() {
 
   return (
     <div className="app">
-      <TopBar canUndo={history.past.length > 0} onUndo={handleUndo} onHelp={() => setTutorialOpen(true)} />
 
+      {/* Lienzo ocupa toda la pantalla (z-index 0) */}
       <Stage
         areaRef={areaRef}
         frameRef={gestures.frameRef}
@@ -159,23 +166,34 @@ export function Editor() {
         handlers={gestures.handlers}
       />
 
+      {/* Barra superior flotante (z-index 10) — herramientas en el top */}
+      <TopBar
+        canUndo={history.past.length > 0}
+        onUndo={handleUndo}
+        onHelp={() => setTutorialOpen(true)}
+        onText={() => setPanel({ type: 'text', editingId: null })}
+        onEmoji={() => setPanel({ type: 'emoji' })}
+      />
+
+      {/* Franja contextual flotante (z-index 9) */}
       <ContextBar
         selected={selected}
         hasElements={elements.length > 0}
         onEditText={() => selected && setPanel({ type: 'text', editingId: selected.id })}
       />
 
+      {/* Barra inferior flotante (z-index 10) — eliminar + guardar */}
       <Toolbar
         hasSelection={selected !== null}
         saving={saving}
-        onText={() => setPanel({ type: 'text', editingId: null })}
-        onEmoji={() => setPanel({ type: 'emoji' })}
         onDelete={handleDelete}
         onSave={handleSave}
       />
 
+      {/* Avisos */}
       <Toast message={toast} onDone={clearToast} />
 
+      {/* Paneles superpuestos */}
       <TextEditorDialog
         open={panel?.type === 'text'}
         mode={editingElement ? 'edit' : 'new'}
@@ -185,11 +203,22 @@ export function Editor() {
         onConfirm={handleTextConfirm}
       />
 
-      <EmojiPicker open={panel?.type === 'emoji'} onClose={() => setPanel(null)} onPick={handleEmojiPick} />
+      <EmojiPicker
+        open={panel?.type === 'emoji'}
+        onClose={() => setPanel(null)}
+        onPick={handleEmojiPick}
+      />
 
-      <ExportDialog file={exportFile} onClose={() => setExportFile(null)} onResult={notify} />
+      <ExportDialog
+        file={exportFile}
+        onClose={() => setExportFile(null)}
+        onResult={notify}
+      />
 
-      <InstallHelpDialog open={panel?.type === 'install'} onClose={() => setPanel(null)} />
+      <InstallHelpDialog
+        open={panel?.type === 'install'}
+        onClose={() => setPanel(null)}
+      />
 
       {tutorialOpen && (
         <Tutorial

@@ -3,24 +3,31 @@ import { CloseIcon } from './icons'
 import { Sheet } from './Sheet'
 
 interface EmojiPickerProps {
-  open: boolean
+  open:    boolean
   onClose: () => void
-  onPick: (emoji: string) => void
+  onPick:  (emoji: string) => void
 }
 
-/** Selector sencillo: un toque agrega el emoji y vuelve al editor. */
+/** Selector de stickers: bottom sheet oscuro, grid desplazable. */
 export function EmojiPicker({ open, onClose, onPick }: EmojiPickerProps) {
   return (
     <Sheet open={open} onClose={onClose} placement="bottom" labelledBy="emoji-title">
       <div className="sheet__header">
         <h2 id="emoji-title" className="sheet__title">
-          Elegí un emoji
+          Stickers
         </h2>
-        <button id="emoji-close" type="button" className="chip-button" onClick={onClose}>
-          <CloseIcon width={22} height={22} />
-          <span>Cerrar</span>
+        <button
+          id="emoji-close"
+          type="button"
+          className="ig-circle-btn"
+          style={{ width: 36, height: 36 }}
+          onClick={onClose}
+          aria-label="Cerrar"
+        >
+          <CloseIcon width={17} height={17} />
         </button>
       </div>
+
       <div className="emoji-grid" role="list">
         {EMOJIS.map((emoji, i) => (
           <button
