@@ -122,7 +122,7 @@ export function Editor() {
     window.setTimeout(() => {
       dispatch({ type: 'commit', next: historyRef.current.present.filter((x) => x.id !== id) })
       setDeleting(null)
-    }, 380)
+    }, 300)
   }
 
   const handleUndo = () => dispatch({ type: 'undo' })
