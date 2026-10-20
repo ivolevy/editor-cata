@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { canShareFile, downloadFile, isIOS, shareFile } from '../lib/share'
 import type { DeliveryResult } from '../lib/share'
-import { CheckIcon, SaveIcon, ShareIcon } from './icons'
+import { SaveIcon, ShareIcon } from './icons'
 import { Sheet } from './Sheet'
 
 interface ExportDialogProps {
@@ -57,10 +57,7 @@ function ExportContent({ file, onClose, onResult }: { file: File } & Omit<Export
 
   return (
     <div className="export">
-      <h2 id="export-title" className="sheet__title">
-        <CheckIcon width={26} height={26} className="export__check" /> Tu imagen está lista
-      </h2>
-
+      <h2 id="export-title" hidden>Imagen lista</h2>
       <img
         className="export__preview"
         src={previewUrl}
@@ -69,29 +66,13 @@ function ExportContent({ file, onClose, onResult }: { file: File } & Omit<Export
         height={1920}
       />
 
-      <p className="export__help">
-        {ios
-          ? 'Tocá «Guardar en galería» y elegí «Guardar imagen». Para WhatsApp, usá «Compartir por WhatsApp».'
-          : 'Tocá «Guardar en galería» para guardarla en el teléfono, o «Compartir por WhatsApp» para enviarla.'}
-      </p>
-
       <div className="sheet__actions sheet__actions--stack">
         <button
           id="gallery-button"
           type="button"
           className="big-button big-button--primary"
           disabled={busy}
-          onClick={async () => {
-            // iPhone: el menú de compartir es la única vía web para «Guardar imagen» en Fotos.
-            if (ios && shareable) {
-              setBusy(true)
-              const result = await shareFile(file)
-              setBusy(false)
-              report(result)
-            } else {
-              report(downloadFile(file))
-            }
-          }}
+          onClick={() => report(downloadFile(file))}
         >
           <SaveIcon width={22} height={22} />
           Guardar en galería

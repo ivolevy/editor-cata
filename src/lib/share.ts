@@ -13,7 +13,7 @@ export function canShareFile(file: File) {
 /** Abre el menú nativo de compartir. Debe llamarse directamente desde un toque. */
 export async function shareFile(file: File): Promise<DeliveryResult> {
   try {
-    await navigator.share({ files: [file], title: 'Mi imagen' })
+    await navigator.share({ files: [file] })
     return 'shared'
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') return 'cancelled'
