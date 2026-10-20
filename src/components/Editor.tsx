@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_TEXT_COLOR } from '../constants'
 import { useCanvasGestures } from '../hooks/useCanvasGestures'
 import { usePwaUpdate } from '../hooks/usePwaUpdate'
@@ -8,7 +8,6 @@ import { saveForReload, takeSavedWork } from '../lib/reloadRecovery'
 import { historyReducer, initialHistory } from '../state/history'
 import type { HistoryState } from '../state/history'
 import type { CanvasElement, ElementKind } from '../types'
-import { ContextBar } from './ContextBar'
 import { EmojiPicker } from './EmojiPicker'
 import { ExportDialog } from './ExportDialog'
 import { Stage } from './Stage'
@@ -41,11 +40,6 @@ export function Editor() {
   const trashRef = useRef<HTMLDivElement>(null)
   const [saving, setSaving]             = useState(false)
   const [toast, setToast]               = useState<ToastMessage | null>(null)
-
-  const selected = useMemo(
-    () => elements.find((el) => el.id === selectedId) ?? null,
-    [elements, selectedId],
-  )
 
   // Si el elemento elegido desaparece (por ejemplo, al deshacer), quita la selección.
   useEffect(() => {
@@ -106,7 +100,6 @@ export function Editor() {
       setSelectedId(editingElement.id)
     } else {
       addElement('text', text, color)
-      notify('Texto agregado · movelo con el dedo', 'success')
     }
     setPanel(null)
   }
@@ -114,7 +107,6 @@ export function Editor() {
   const handleEmojiPick = (emoji: string) => {
     addElement('emoji', emoji, DEFAULT_TEXT_COLOR)
     setPanel(null)
-    notify('Sticker agregado · movelo con el dedo', 'success')
   }
 
   /** Anima el elemento hacia el tachito y después lo elimina. */
@@ -187,12 +179,6 @@ export function Editor() {
         onUndo={handleUndo}
         onText={() => setPanel({ type: 'text', editingId: null })}
         onEmoji={() => setPanel({ type: 'emoji' })}
-      />
-
-      {/* Franja contextual flotante (z-index 9) */}
-      <ContextBar
-        selected={selected}
-        hasElements={elements.length > 0}
       />
 
       {/* Barra inferior flotante (z-index 10) — eliminar + guardar */}
