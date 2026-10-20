@@ -1,5 +1,3 @@
-import { SaveIcon } from './icons'
-
 interface ToolbarProps {
   saving: boolean
   onSave: () => void
@@ -14,13 +12,16 @@ export function Toolbar({ saving, onSave }: ToolbarProps) {
         <button
           id="save-button"
           type="button"
-          className="ig-save-btn"
+          className="ig-save-btn ig-save-btn--icon"
+          aria-label="Guardar imagen"
           onClick={onSave}
           disabled={saving}
           aria-busy={saving}
         >
-          <SaveIcon width={18} height={18} />
-          <span>{saving ? 'Preparando…' : 'Guardar'}</span>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+            strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 4v12M6 11l6 6 6-6" />
+          </svg>
         </button>
       </div>
     </nav>
