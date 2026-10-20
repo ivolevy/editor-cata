@@ -7,9 +7,9 @@ export default defineConfig({
   plugins: [react(), VitePWA({
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Mi Imagen',
-      short_name: 'MiImagen',
-      description: 'Editor de imágenes simple para personas mayores',
+      name: 'Editor fotos',
+      short_name: 'Editor fotos',
+      description: 'Editor de fotos simple',
       start_url: '/',
       display: 'standalone',
       background_color: '#ffffff',
